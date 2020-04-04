@@ -1,0 +1,10 @@
+name: inspec-linux-baseline
+title: Linux Security Baseline
+maintainer: Michael Tharpe
+copyright: Michael Tharpe
+copyright_email: mtharpe@noemail.not
+license: Apache-2.0
+summary: Test suite for best practice Linux OS hardening
+version: 2.4.0
+supports:
+  - os-family: linux
