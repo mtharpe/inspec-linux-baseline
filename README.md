@@ -1,4 +1,4 @@
-
+![insepc](https://github.com/mtharpe/inspec-linux-baseline/workflows/insepc/badge.svg)
 
 Inspec Linux Baseline
 =====================
