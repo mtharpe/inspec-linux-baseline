@@ -1,4 +1,4 @@
-name: delivery
+name: insepc
 
 on: [push]
 
@@ -14,5 +14,3 @@ jobs:
       uses: actionshub/chef-install@master
     - name: cookstyle
       run: cookstyle -a
-    - name: rake
-      run: rake

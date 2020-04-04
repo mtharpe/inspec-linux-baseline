@@ -1,0 +1,28 @@
+---
+AllCops:
+  Exclude:
+  - vendor/**/*
+Style/Documentation:
+  Enabled: false
+Layout/AlignParameters:
+  Enabled: false
+Style/HashSyntax:
+  Enabled: true
+Metrics/LineLength:
+  Enabled: false
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+Style/IfUnlessModifier:
+  Enabled: false
+Metrics/MethodLength:
+  Max: 80
+Style/NumericLiterals:
+  MinDigits: 10
+Metrics/BlockLength:
+  Max: 35
+Metrics/CyclomaticComplexity:
+  Max: 10
+Metrics/PerceivedComplexity:
+  Max: 10
+Metrics/AbcSize:
+  Max: 30

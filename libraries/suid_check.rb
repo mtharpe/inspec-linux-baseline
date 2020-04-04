@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # author: Christoph Hartmann
 
 class SUIDCheck < Inspec.resource(1)

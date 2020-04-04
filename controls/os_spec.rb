@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 login_defs_umask = attribute('login_defs_umask', value: os.redhat? ? '077' : '027', description: 'Default umask to set in login.defs')
 

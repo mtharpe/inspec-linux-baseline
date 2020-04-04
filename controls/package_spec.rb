@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 val_syslog_pkg = attribute('syslog_pkg', value: 'rsyslog', description: 'syslog package to ensure present (default: rsyslog, alternative: syslog-ng...')
 container_execution = begin
