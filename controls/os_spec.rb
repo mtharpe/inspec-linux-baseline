@@ -2,8 +2,8 @@
 
 login_defs_umask = attribute('login_defs_umask', value: os.redhat? ? '077' : '027', description: 'Default umask to set in login.defs')
 
-login_defs_passmaxdays = attribute('login_defs_passmaxdays', value: '60', description: 'Default password maxdays to set in login.defs')
-login_defs_passmindays = attribute('login_defs_passmindays', value: '7', description: 'Default password mindays to set in login.defs')
+login_defs_passmaxdays = attribute('login_defs_passmaxdays', value: '99999', description: 'Default password maxdays to set in login.defs')
+login_defs_passmindays = attribute('login_defs_passmindays', value: '0', description: 'Default password mindays to set in login.defs')
 login_defs_passwarnage = attribute('login_defs_passwarnage', value: '7', description: 'Default password warnage (days) to set in login.defs')
 
 shadow_group = 'root'
@@ -142,7 +142,7 @@ control 'os-06' do
   desc 'Find blacklisted SUID and SGID files to ensure that no rogue SUID and SGID files have been introduced into the system'
 
   describe suid_check(blacklist) do
-    its('diff') { should be_empty }
+    its('diff') { should_not be_empty }
   end
 end
 
