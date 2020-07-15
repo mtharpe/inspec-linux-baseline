@@ -8,7 +8,7 @@ Layout/ParameterAlignment:
   Enabled: false
 Style/HashSyntax:
   Enabled: true
-Metrics/LineLength:
+Layout/LineLength:
   Enabled: false
 Layout/EmptyLinesAroundBlockBody:
   Enabled: false
