@@ -1,4 +1,3 @@
-![insepc](https://github.com/mtharpe/inspec-linux-baseline/workflows/insepc/badge.svg)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/mtharpe/inspec-linux-baseline/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mtharpe/inspec-linux-baseline/tree/main)
 
 Inspec Linux Baseline
