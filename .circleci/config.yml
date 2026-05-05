@@ -9,11 +9,13 @@ executors:
 jobs:
   inspec-check:
     executor: ruby
+    environment:
+      CHEF_LICENSE: accept-no-persist
     steps:
       - checkout
       - run:
-          name: Install InSpec
-          command: gem install --no-document inspec-core
+          name: Install InSpec (free distribution) + cookstyle dep
+          command: gem install --no-document inspec-core-bin cookstyle
       - run:
           name: inspec check
           command: inspec check .
