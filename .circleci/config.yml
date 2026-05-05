@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run:
           name: Install InSpec (free distribution) + cookstyle dep
-          command: gem install --no-document inspec-core-bin cookstyle
+          command: gem install --no-document inspec-core-bin:5.7.9 cookstyle
       - run:
           name: inspec check
           command: inspec check .
