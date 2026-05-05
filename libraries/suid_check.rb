@@ -1,27 +1,31 @@
 # frozen_string_literal: true
 
-# author: Christoph Hartmann
-
 class SUIDCheck < Inspec.resource(1)
   name 'suid_check'
-  desc 'Use the suid_check resource to verify the current SUID/SGID against a blacklist'
-  example "
-     describe suid_check(blacklist) do
-       its('diff') { should be_empty }
-     end
-   "
+  desc 'Verify the current SUID/SGID files on the system against a denylist.'
+  example <<~EXAMPLE
+    describe suid_check(denylist) do
+      its('diff') { should be_empty }
+    end
+  EXAMPLE
 
-  def initialize(blacklist = nil)
-    blacklist = default if blacklist.nil?
-    @blacklist = blacklist
+  FIND_CMD = %q(find / -xdev \( -perm -4000 -o -perm -2000 \) -type f \
+    ! -path '/proc/*' ! -path '/var/lib/lxd/containers/*' \
+    -print 2>/dev/null | grep -v '^find:').freeze
+
+  def initialize(denylist = nil)
+    @denylist = denylist && !denylist.empty? ? denylist : inspec.suid_denylist.default
   end
 
   def permissions
-    output = inspec.command('find / -perm -4000 -o -perm -2000 -type f ! -path \'/proc/*\' ! -path \'/var/lib/lxd/containers/*\' -print 2>/dev/null | grep -v \'^find:\'')
-    output.stdout.split(/\r?\n/)
+    @permissions ||= inspec.command(FIND_CMD).stdout.split(/\r?\n/)
   end
 
   def diff
-    permissions & @blacklist
+    permissions & @denylist
+  end
+
+  def to_s
+    'SUID/SGID denylist check'
   end
 end

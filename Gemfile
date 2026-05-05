@@ -2,13 +2,10 @@
 
 source 'https://rubygems.org'
 
-gem 'highline', '~> 2.0.2'
-gem 'inspec', '~> 3'
-gem 'rack', '~> 2.1.4'
-gem 'rake', '~> 12.3.2'
-gem 'rubocop', '~> 0.68.1'
+# inspec-core-bin is the free distribution; later versions require a Chef license.
+gem 'inspec-core-bin', '5.7.9'
 
-group :tools do
-  gem 'github_changelog_generator', '~> 1.14.3'
-  gem 'pry-coolline', '~> 0.2.5'
+group :development do
+  gem 'cookstyle', '~> 7.32'
+  gem 'rake', '~> 13.2'
 end

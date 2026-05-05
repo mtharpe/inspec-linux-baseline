@@ -2,25 +2,19 @@
 
 require 'rubocop/rake_task'
 
-# Rubocop
-desc 'Run Rubocop lint checks'
-task :rubocop do
-  RuboCop::RakeTask.new
+RuboCop::RakeTask.new(:cookstyle) do |task|
+  task.options = ['--display-cop-names']
 end
 
-# lint the project
-desc 'Run robocop linter'
-task lint: [:rubocop]
+desc 'Lint Ruby with Cookstyle'
+task lint: [:cookstyle]
 
-# run tests
-task default: [:lint, 'test:check']
-
-namespace :test do
-  # run inspec check to verify that the profile is properly configured
-  task :check do
-    require 'inspec'
-    puts "Checking profile with InSpec Version: #{Inspec::VERSION}"
-    profile = Inspec::Profile.for_target('.', backend: Inspec::Backend.create(Inspec::Config.mock))
-    pp profile.check
-  end
+desc 'Validate the InSpec profile'
+task :check do
+  require 'inspec'
+  puts "Checking profile with InSpec #{Inspec::VERSION}"
+  profile = Inspec::Profile.for_target('.', backend: Inspec::Backend.create(Inspec::Config.mock))
+  pp profile.check
 end
+
+task default: %i[lint check]

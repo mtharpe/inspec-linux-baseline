@@ -4,7 +4,43 @@ maintainer: Michael Tharpe
 copyright: Michael Tharpe
 copyright_email: mtharpe@noemail.not
 license: Apache-2.0
-summary: Test suite for best practice Linux OS hardening
-version: 2.4.0
+summary: Test suite for best-practice Linux OS hardening
+version: 3.0.0
+inspec_version: '>= 5.0'
+
 supports:
-  - os-family: linux
+  - platform-family: linux
+
+inputs:
+  - name: syslog_pkg
+    description: Syslog package to ensure present (rsyslog, syslog-ng, ...)
+    type: string
+    value: rsyslog
+  - name: sysctl_forwarding
+    description: Is network forwarding needed?
+    type: boolean
+    value: false
+  - name: ipv6_disabled
+    description: Whether IPv6 is expected to be disabled. Set false to skip the IPv6-disable checks.
+    type: boolean
+    value: false
+  - name: kernel_modules_disabled
+    description: Expected value of kernel.modules_disabled (1 to forbid module loading).
+    type: numeric
+    value: 0
+  - name: login_defs_passmaxdays
+    description: PASS_MAX_DAYS in /etc/login.defs.
+    type: string
+    value: '99999'
+  - name: login_defs_passmindays
+    description: PASS_MIN_DAYS in /etc/login.defs.
+    type: string
+    value: '0'
+  - name: login_defs_passwarnage
+    description: PASS_WARN_AGE in /etc/login.defs.
+    type: string
+    value: '7'
+  - name: suid_denylist
+    description: Files which should not have SUID/SGID bits. Empty list uses the built-in default.
+    type: array
+    value: []

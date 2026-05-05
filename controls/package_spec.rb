@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
-val_syslog_pkg = input('syslog_pkg', value: 'rsyslog', description: 'syslog package to ensure present (default: rsyslog, alternative: syslog-ng...')
-container_execution = begin
-                        virtualization.role == 'guest' && virtualization.system =~ /^(lxc|docker)$/
-                      rescue NoMethodError
-                        false
-                      end
+syslog_pkg = input('syslog_pkg')
+container_execution = virtualization.role == 'guest' &&
+                      %w[lxc docker].include?(virtualization.system)
 
 control 'package-01' do
   impact 1.0
   title 'Do not run deprecated inetd or xinetd'
-  desc 'http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.1'
+  desc 'inetd/xinetd are legacy super-servers and should not be installed.'
+  ref 'NSA RHEL5 STIG 3.2.1', url: 'https://www.nsa.gov/'
+  tag category: 'package'
+
   describe package('inetd') do
     it { should_not be_installed }
   end
+
   describe package('xinetd') do
     it { should_not be_installed }
   end
@@ -22,7 +23,10 @@ end
 control 'package-02' do
   impact 1.0
   title 'Do not install Telnet server'
-  desc 'Telnet protocol uses unencrypted communication, that means the password and other sensitive data are unencrypted. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.2'
+  desc 'Telnet transmits credentials in cleartext.'
+  ref 'NSA RHEL5 STIG 3.2.2'
+  tag category: 'package'
+
   describe package('telnetd') do
     it { should_not be_installed }
   end
@@ -31,18 +35,24 @@ end
 control 'package-03' do
   impact 1.0
   title 'Do not install rsh server'
-  desc 'The r-commands suffers same problem as telnet. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.3'
+  desc 'r-commands suffer the same cleartext problem as telnet.'
+  ref 'NSA RHEL5 STIG 3.2.3'
+  tag category: 'package'
+
   describe package('rsh-server') do
     it { should_not be_installed }
   end
 end
 
-# package-04 is reserved, because we forgot to use it in the first-place :-)
+# package-04 is reserved.
 
 control 'package-05' do
   impact 1.0
   title 'Do not install ypserv server (NIS)'
-  desc 'Network Information Service (NIS) has some security design weaknesses like inadequate protection of important authentication information. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.4'
+  desc 'NIS does not adequately protect authentication information.'
+  ref 'NSA RHEL5 STIG 3.2.4'
+  tag category: 'package'
+
   describe package('ypserv') do
     it { should_not be_installed }
   end
@@ -51,7 +61,10 @@ end
 control 'package-06' do
   impact 1.0
   title 'Do not install tftp server'
-  desc 'tftp-server provides little security http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.5'
+  desc 'tftp-server provides little security.'
+  ref 'NSA RHEL5 STIG 3.2.5'
+  tag category: 'package'
+
   describe package('tftp-server') do
     it { should_not be_installed }
   end
@@ -60,12 +73,11 @@ end
 control 'package-07' do
   impact 1.0
   title 'Install syslog server package'
-  desc 'Syslog server is required to receive system and applications logs'
-  # Fedora doesn't install with a syslogger out of the box and instead uses
-  # systemd journal; as there is there is no affinity towards either rsyslog
-  # or syslog-ng, we'll skip this check on Fedora hosts.
-  only_if { os.name != 'fedora' && !container_execution }
-  describe package(val_syslog_pkg) do
+  desc 'A syslog server is required to receive system and application logs. Skipped on Fedora (uses systemd-journald) and inside containers.'
+  only_if('Skipped on Fedora and in containers') { os.name != 'fedora' && !container_execution }
+  tag category: 'package'
+
+  describe package(syslog_pkg) do
     it { should be_installed }
   end
 end
@@ -73,31 +85,44 @@ end
 control 'package-08' do
   impact 1.0
   title 'Install auditd'
-  desc 'auditd provides extended logging capabilities on recent distributions'
-  only_if { !container_execution }
-  audit_pkg = os.redhat? || os.suse? || os.name == 'amazon' || os.name == 'fedora' ? 'audit' : 'auditd'
+  desc 'auditd provides extended logging capabilities on recent distributions.'
+  only_if('Skipped in containers') { !container_execution }
+  tag category: 'package'
+  tag cis: '4.1.1'
+
+  audit_pkg =
+    if os.redhat? || os.suse? || os.name == 'amazon' || os.name == 'fedora'
+      'audit'
+    else
+      'auditd'
+    end
+
   describe package(audit_pkg) do
     it { should be_installed }
   end
+
   describe auditd_conf do
-    its('log_file') { should cmp '/var/log/audit/audit.log' }
-    its('log_format') { should cmp 'raw' }
-    its('flush') { should match(/^incremental|INCREMENTAL|incremental_async|INCREMENTAL_ASYNC$/) }
-    its('max_log_file_action') { should cmp 'keep_logs' }
-    its('space_left') { should cmp 75 }
-    its('action_mail_acct') { should cmp 'root' }
-    its('space_left_action') { should cmp 'SYSLOG' }
-    its('admin_space_left') { should cmp 50 }
+    its('log_file')                { should cmp '/var/log/audit/audit.log' }
+    its('log_format')              { should cmp 'raw' }
+    its('flush')                   { should match(/^incremental|INCREMENTAL|incremental_async|INCREMENTAL_ASYNC$/) }
+    its('max_log_file_action')     { should cmp 'keep_logs' }
+    its('space_left')              { should cmp 75 }
+    its('action_mail_acct')        { should cmp 'root' }
+    its('space_left_action')       { should cmp 'SYSLOG' }
+    its('admin_space_left')        { should cmp 50 }
     its('admin_space_left_action') { should cmp 'SUSPEND' }
-    its('disk_full_action') { should cmp 'SUSPEND' }
-    its('disk_error_action') { should cmp 'SUSPEND' }
+    its('disk_full_action')        { should cmp 'SUSPEND' }
+    its('disk_error_action')       { should cmp 'SUSPEND' }
   end
 end
 
 control 'package-09' do
   impact 1.0
   title 'CIS: Additional process hardening'
-  desc '1.5.4 Ensure prelink is disabled'
+  desc '1.5.4 Ensure prelink is disabled.'
+  tag category: 'package'
+  tag cis: '1.5.4'
+
   describe package('prelink') do
     it { should_not be_installed }
   end
